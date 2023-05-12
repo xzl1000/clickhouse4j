@@ -2,7 +2,6 @@ package cc.blynk.clickhouse;
 
 import cc.blynk.clickhouse.settings.ClickHouseProperties;
 
-import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
@@ -10,7 +9,7 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-public final class ClickHouseDataSource implements DataSource {
+public final class ClickHouse4jDataSource {
 
     private final ClickHouseDriver driver = new ClickHouseDriver();
     protected final String url;
@@ -18,15 +17,15 @@ public final class ClickHouseDataSource implements DataSource {
     private int loginTimeoutSeconds = 0;
     private ClickHouseProperties properties;
 
-    public ClickHouseDataSource(String url) {
+    public ClickHouse4jDataSource(String url) {
         this(url, new ClickHouseProperties());
     }
 
-    public ClickHouseDataSource(String url, Properties info) {
+    public ClickHouse4jDataSource(String url, Properties info) {
         this(url, new ClickHouseProperties(info));
     }
 
-    public ClickHouseDataSource(String url, ClickHouseProperties properties) {
+    public ClickHouse4jDataSource(String url, ClickHouseProperties properties) {
         if (url == null) {
             throw new IllegalArgumentException("Incorrect ClickHouse jdbc url. It must be not null");
         }
@@ -38,12 +37,10 @@ public final class ClickHouseDataSource implements DataSource {
         }
     }
 
-    @Override
     public ClickHouseConnection getConnection() throws SQLException {
         return driver.connect(url, properties);
     }
 
-    @Override
     public ClickHouseConnection getConnection(String username, String password) throws SQLException {
         return driver.connect(url, properties.withCredentials(username, password));
     }
@@ -68,22 +65,18 @@ public final class ClickHouseDataSource implements DataSource {
         return properties;
     }
 
-    @Override
     public PrintWriter getLogWriter() throws SQLException {
         return printWriter;
     }
 
-    @Override
     public void setLogWriter(PrintWriter out) throws SQLException {
         printWriter = out;
     }
 
-    @Override
     public void setLoginTimeout(int seconds) throws SQLException {
         loginTimeoutSeconds = seconds;
     }
 
-    @Override
     public int getLoginTimeout() throws SQLException {
         return loginTimeoutSeconds;
     }
@@ -92,7 +85,6 @@ public final class ClickHouseDataSource implements DataSource {
         throw new SQLFeatureNotSupportedException();
     }
 
-    @Override
     public <T> T unwrap(Class<T> iface) throws SQLException {
         if (iface.isAssignableFrom(getClass())) {
             return iface.cast(this);
@@ -100,7 +92,6 @@ public final class ClickHouseDataSource implements DataSource {
         throw new SQLException("Cannot unwrap to " + iface.getName());
     }
 
-    @Override
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
         return iface.isAssignableFrom(getClass());
     }
